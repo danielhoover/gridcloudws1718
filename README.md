@@ -2,7 +2,7 @@
 
 Nachfolgend die Installationsschritte für die Virtuelle Maschine in der Vorlesung Grid und Cloud Computing an der LMU im Wintersemester 2017/2018
 
-##Übungblatt 2
+## Übungblatt 2
 
 Login auf die Virtuelle Maschine mit
 
@@ -69,7 +69,7 @@ Kompletter Befehl:
 yum install globus-gridftp globus-gram5 globus-gsi globus-data-management-server globus-data-management-client globus-resource-management-server globus-resource-management-client myproxy myproxy-server myproxy-admin
 ```
 
-##Übungblatt 4
+## Übungblatt 4
 
 Ins Verzeichnis /etc/grid-security wechseln. Dort finden sich die hostcert.pem und hostkey.pem. (Auflisten von Dateien mittels ls -l oder dem Alias ll)
 
@@ -190,7 +190,7 @@ globus-url-copy gsiftp://gridsl/etc/group /tmp/copytest
 ```
 gridsl steht hier für den vollen hostname. Der muss korrekt sein sonst gibt es Fehlermeldungen!
 
-##Übungsblatt 6
+## Übungsblatt 6
 
 globus-gatekeeper-admin -l
 
