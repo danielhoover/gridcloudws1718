@@ -330,24 +330,34 @@ globus-job-clean -r hostname https://hostname:52668/16650265051858224281/1801757
 
 2.
 
+```sh
 globusrun -s -r hostname/jobmanager "&(executable=/bin/hostname)(count=5)"
+```
 
-globusrun -b -r pcgridp19.gridp.lab.nm.ifi.lmu.de./jobmanager "&(executable=/bin/sleep)(arguments=500)"
+```sh
+globusrun -b -r hostname/jobmanager "&(executable=/bin/sleep)(arguments=500)"
+```
 
 hier kommt eine URL zurück die wir uns wieder merken müssen
 https://hostname:48937/16650268353891826901/1801757980518054278/
 
+```sh
 globusrun -status https://hostname:48937/16650268353891826901/1801757980518054278/
+```
 
 ACTIVE
 
 Jetzt killen wir den Job weil wir nicht wollen das das Ding 500 Sekunden schläft.
 
+```sh
 globusrun -k https://hostname:48937/16650268353891826901/1801757980518054278/
+```
 
 Erneutes Prüfen des Status
 
+```sh
 globusrun -status https://hostname:48937/16650268353891826901/1801757980518054278/
+```
 
 liefert DONE zurück.
 
