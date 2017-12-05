@@ -192,6 +192,10 @@ gridsl steht hier für den vollen hostname. Der muss korrekt sein sonst gibt es 
 
 ## Übungsblatt 6
 
+1. Installieren der Pakete mit yum install Paketname - diese sind aber bereits alle schon installiert worden
+
+2. ist nur eine Feststellung - da ist nicht wirklich was zu tun. Wenn man dem Link zu Dokumentation folgt erfährt man etwas über das was wir jetzt ausführen sollen.
+
 globus-gatekeeper-admin -l
 
 Listet alle Skripte auf die enabled sind.
@@ -207,4 +211,167 @@ Disable eines Skriptes mit:
 ```sh
 globus-gatekeeper-admin -d scriptname
 ```
+
+3. Zunächst sollen wir ins Verzeichnis /etc/grid-services/ wechseln und dort die verfügbaren Services auflisten.
+
+```sh
+cd /etc/grid-services/
+ll (oder ls -l)
+```
+
+Wir sehen jetzt symbolische Links. Offenbar erzeugt der globus-gatekeeper-admin symbolische Links auf Skripte.
+Wir können diese entfernen (wie in der Angabe gefordert) indem wir folgendes ausführen:
+
+```sh
+globus-gatekeeper-admin -d jobmanager-fork-poll
+```
+
+Führt man ll jetzt aus, so gibt es außer dem Verzeichnis available nichts mehr zu sehen. Enablen wir den Service nun unter anderem Namen
+
+```sh
+globus-gatekeeper-admin -e jobmanager-fork-poll -n jobmanager
+```
+
+Jetzt fehlt uns noch ein weiterer symbolischer Link damit wir mit der Angabe übereinstimmen. Legen wir diesen nun an:
+
+```sh
+(Syntax: ln -s Quelle Ziel bzw. ln -s Linkname Verweis)
+ln -s jobmanager jobmanager-fork
+```
+
+Punkt 4 - wir sollen prüfen ob die Datei /etc/grid-services/available/jobmanager-fork-poll etwas enhtält:
+
+```sh
+cat /etc/grid-services/available/jobmanager-fork-poll
+```
+
+Das Ergebnis ist das gleiche wie auf dem Übungsblatt:
+
+```sh
+stderr_log,local_cred - /usr/sbin/globus-job-manager globus-job-manager -conf /etc/globus/globus-gram-job-manager.conf -type fork
+```
+
+5. Nach diesen Vorbereitungen dürfen wir nun den GRAM Gatekeeper starten, den Status prüfen und sehen, dass auf Port 2119 gehorcht wird. Wenig spektakulär die Befehle:
+
+```sh
+service globus-gatekeeper start
+service globus-gatekeeper status
+
+(Result: globus-gatekeeper is running (pid=14708))
+
+netstat -anp |grep 2119
+
+(Result: tcp6       0      0 :::2119                 :::*                    LISTEN      14708/globus-gateke)
+```
+
+Soweit also offenbar alles in Ordnung.
+
+Jetzt sollen wir in Punkt 6 mal einen Job ausführen. Dazu brauchen wir zunächst ein Zertifikat. Wechsel zum eigenen Benutzer:
+
+```sh
+su username
+myproxy-logon -s hostname
+globus-job-run hostname /usr/bin/whoami
+(Result: username)
+```
+
+Das erscheint erstmal wenig spektakulär - ist es aber schon. Wir können jetzt über unser Grid beliebige Jobs laufen lassen. Anmerkung: das tool globus-job-run ermöglicht die Ausführung von Jobs über Kommandozeilenparameter. Bei globusrun wird RSL verwendet.
+
+Jetzt sollen wir noch die Beispiele der Dokumentation ausführen:
+
+```sh
+globus-job-run hostname /bin/hostname
+globus-job-run hostname -np 4 /bin/hostname
+globus-job-run hostname -stdin /tmp/testinput.txt /bin/cat
+globus-job-run hostname -stdin -s /tmp/testinput.txt /bin/cat
+globus-job-run hostname /bin/sleep 90
+globus-job-run hostname -env TEST=1 -env GRID=1 /usr/bin/env
+```
+
+Jetzt wird es etwas lustiger. Wir sollen nun globus-job-submit verwenden:
+
+```sh
+globus-job-submit hostname /bin/hostname
+```
+
+Als Result erhalten wir eine URL (die merken - verwende ich jetzt exemplarisch):
+
+```sh
+https://hostname:52668/16650265051858224281/1801757980518004640/
+```
+
+Die nutzen wir jetzt um nach dem Status zu fragen:
+
+```sh
+globus-job-status https://hostname:52668/16650265051858224281/1801757980518004640/
+```
+
+(Ich bin nicht schnell genug mit dem Tippen von obiger Zeile um da PENDING oder ACTIVE zu erhalten. Ich habe als Status lediglich DONE erhalten.)
+
+```sh
+globus-job-get-output https://hostname:52668/16650265051858224281/1801757980518004640/
+
+globus-job-clean -r hostname https://hostname:52668/16650265051858224281/1801757980518004640/
+```
+
+### globusrun
+
+1. Aus der Dokumentation die Beispiele 2.12 und 2.13
+
+-r steht für "Resource" - also worauf soll der Job laufen?
+
+```sh
+(geht) globusrun -a -r hostname
+(geht) globusrun -a -r hostname/jobmanager
+(fehler) globusrun -a -r hostname/jobmanager-doesntexist
+(fehler) globusrun -j -r hostname/jobmanager:host@someother.host.example.org
+(geht) globusrun -j -r hostname/jobmanager:host@hostname
+```
+
+2.
+
+globusrun -s -r hostname/jobmanager "&(executable=/bin/hostname)(count=5)"
+
+globusrun -b -r pcgridp19.gridp.lab.nm.ifi.lmu.de./jobmanager "&(executable=/bin/sleep)(arguments=500)"
+
+hier kommt eine URL zurück die wir uns wieder merken müssen
+https://hostname:48937/16650268353891826901/1801757980518054278/
+
+globusrun -status https://hostname:48937/16650268353891826901/1801757980518054278/
+
+ACTIVE
+
+Jetzt killen wir den Job weil wir nicht wollen das das Ding 500 Sekunden schläft.
+
+globusrun -k https://hostname:48937/16650268353891826901/1801757980518054278/
+
+Erneutes Prüfen des Status
+
+globusrun -status https://hostname:48937/16650268353891826901/1801757980518054278/
+
+liefert DONE zurück.
+
+Gut. Jetzt nutzen wir das erste Mal RSL in einer Datei. Dazu legen wir eine Datei an - eta rsltest.txt und schreiben das rein was auf dem Übungsblat zu finden ist:
+
+```sh
+&
+(count=5)
+(executable="/usr/bin/echo")
+(arguments="Hello Globus")
+```
+
+Jetzt parsen wir das erstmal
+
+```sh
+globusrun -p -f ./rsltestjob.txt 
+```
+
+Alles ok. Jetzt können wir das ganze auf eine beliebige Art und Weise ausführen. Zum Beispiel direkt
+
+```sh
+globusrun -s -f ./rsltestjob.txt -r hostname/jobmanager
+```
+
+Oder als Batch (statt -s ein -b) mit entsprechender Prüfung des status (globusrun -status url oder globus-job-status url) und des results (globus-job-get-output) und einem clean.... globus-job-clean -r hostname url
+
 
