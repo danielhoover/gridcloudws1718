@@ -388,3 +388,25 @@ Oder als Batch (statt -s ein -b) mit entsprechender Prüfung des status (globusr
 ## Übungsblatt 8
 
 Das Übungsblatt 8 ist netterweise so gestaltet, dass alle Kommandos einfach so ausgeführt werden wie es auf dem Übungsblatt steht. Insofern erspare ich mir, exakt das gleiche hier in GIT abzutippen.
+
+Spannend wird es erst ab dem Punt Test der Master/Slave-Kooperation
+
+### Master/Slave-Kooperation
+
+#### 1. a)
+
+```sh
+service globus-gridftp-server status
+service globus-gatekeeper status
+```
+
+#### 1. b)
+
+Zunächst neues myproxy Zertifikat besorgen.
+
+```sh
+myproxy-logon -s hostname
+globus-url-copy -vb -list gsiftp://masterlong/tmp/
+```
+
+
