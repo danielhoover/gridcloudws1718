@@ -385,3 +385,6 @@ globusrun -s -f ./rsltestjob.txt -r hostname/jobmanager
 Oder als Batch (statt -s ein -b) mit entsprechender Prüfung des status (globusrun -status url oder globus-job-status url) und des results (globus-job-get-output) und einem clean.... globus-job-clean -r hostname url
 
 
+## Übungsblatt 8
+
+Das Übungsblatt 8 ist netterweise so gestaltet, dass alle Kommandos einfach so ausgeführt werden wie es auf dem Übungsblatt steht. Insofern erspare ich mir, exakt das gleiche hier in GIT abzutippen.
